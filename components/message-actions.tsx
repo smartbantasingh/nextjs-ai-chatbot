@@ -1,4 +1,4 @@
-import type { Message } from 'ai';
+import type { Message } from '@/lib/types';
 import { toast } from 'sonner';
 import { useSWRConfig } from 'swr';
 import { useCopyToClipboard } from 'usehooks-ts';
@@ -15,6 +15,7 @@ import {
 } from './ui/tooltip';
 import { memo } from 'react';
 import equal from 'fast-deep-equal';
+import { BookmarkIcon } from 'lucide-react';
 
 export function PureMessageActions({
   chatId,
@@ -156,6 +157,39 @@ export function PureMessageActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>Downvote Response</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="py-1 px-2 h-fit text-muted-foreground"
+              variant="outline"
+              onClick={async () => {
+                const bookmark = fetch('/api/bookmark', {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    messageId: message.id,
+                    isBookmarked: !message.isBookmarked
+                  }),
+                });
+
+                toast.promise(bookmark, {
+                  loading: 'Updating bookmark...',
+                  success: () => {
+                    message.isBookmarked = !message.isBookmarked;
+                    return message.isBookmarked ? 'Message bookmarked!' : 'Bookmark removed';
+                  },
+                  error: 'Failed to update bookmark.',
+                });
+              }}
+            >
+              <BookmarkIcon className={message.isBookmarked ? 'fill-current' : ''} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {message.isBookmarked ? 'Remove Bookmark' : 'Bookmark Message'}
+          </TooltipContent>
         </Tooltip>
       </div>
     </TooltipProvider>

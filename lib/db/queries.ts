@@ -357,3 +357,15 @@ export async function toggleChatPin(chatId: string, isPinned: boolean) {
     throw error;
   }
 }
+
+export async function toggleMessageBookmark(messageId: string, isBookmarked: boolean) {
+  try {
+    return await db
+      .update(message)
+      .set({ isBookmarked })
+      .where(eq(message.id, messageId));
+  } catch (error) {
+    console.error('Failed to update message bookmark status');
+    throw error;
+  }
+}
