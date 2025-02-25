@@ -178,6 +178,7 @@ export function PureMessageActions({
                   loading: 'Updating bookmark...',
                   success: () => {
                     message.isBookmarked = !message.isBookmarked;
+                    mutate('/api/bookmark');
                     return message.isBookmarked ? 'Message bookmarked!' : 'Bookmark removed';
                   },
                   error: 'Failed to update bookmark.',
