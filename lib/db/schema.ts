@@ -42,6 +42,7 @@ export const message = pgTable('Message', {
   role: varchar('role').notNull(),
   content: json('content').notNull(),
   createdAt: timestamp('createdAt').notNull(),
+  isBookmarked: boolean('is_bookmarked').notNull().default(false),
 });
 
 export type Message = InferSelectModel<typeof message>;

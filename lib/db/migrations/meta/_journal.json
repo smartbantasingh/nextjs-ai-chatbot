@@ -43,6 +43,13 @@
       "when": 1740506566000,
       "tag": "0005_dry_shatterstar",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1740510498117,
+      "tag": "0006_gifted_network",
+      "breakpoints": true
     }
   ]
 }
