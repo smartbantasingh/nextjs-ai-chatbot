@@ -17,6 +17,25 @@ export function BookmarkedMessages() {
     return content.text
   }
 
+  const handleBookmarkClick = (messageId: string) => {
+    // Find the message element by its ID
+    const messageElement = document.getElementById(`message-${messageId}`);
+    
+    if (messageElement) {
+      // Scroll the message into view with smooth animation
+      messageElement.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center' // Centers the message in the viewport
+      });
+      
+      // Optionally, add a highlight effect
+      messageElement.classList.add('highlight-message');
+      setTimeout(() => {
+        messageElement.classList.remove('highlight-message');
+      }, 2000);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="w-64 border-l border-border p-4">
@@ -55,7 +74,10 @@ export function BookmarkedMessages() {
         {bookmarks?.map((message) => (
           <button
             key={message.id}
-            onClick={() => router.push(`/chat/${message.chatId}?messageId=${message.id}`)}
+            onClick={() => {
+              router.push(`/chat/${message.chatId}?messageId=${message.id}`);
+              handleBookmarkClick(message.id);
+            }}
             className="w-full rounded-md border p-3 text-left text-sm hover:bg-accent"
           >
             <p className="line-clamp-3">
