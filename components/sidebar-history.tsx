@@ -7,6 +7,7 @@ import type { User } from 'next-auth';
 import { memo, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import useSWR from 'swr';
+import { motion, AnimatePresence } from 'framer-motion'
 
 import {
   CheckCircleFillIcon,
@@ -189,6 +190,57 @@ export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {
   return true;
 });
 
+const ChatSection = ({ title, chats, id, onDelete, setOpenMobile, mutate, className = '' }: {
+  title: string
+  chats: Chat[]
+  id: string | string[] | undefined
+  onDelete: (chatId: string) => void
+  setOpenMobile: (open: boolean) => void
+  mutate: () => void
+  className?: string
+}) => {
+  if (chats.length === 0) return null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ 
+        duration: 0.4,
+        ease: [0.4, 0, 0.2, 1] // Smooth easing function
+      }}
+    >
+      <div className={`px-2 py-1 text-xs text-sidebar-foreground/50 ${className}`}>
+        {title}
+      </div>
+      <AnimatePresence mode="popLayout">
+        {chats.map((chat) => (
+          <motion.div
+            key={chat.id}
+            layout
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ 
+              duration: 0.3,
+              ease: "easeOut"
+            }}
+          >
+            <ChatItem
+              chat={chat}
+              isActive={chat.id === (typeof id === 'string' ? id : undefined)}
+              onDelete={onDelete}
+              setOpenMobile={setOpenMobile}
+              mutate={mutate}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
 export function SidebarHistory({ user }: { user: User | undefined }) {
   const { setOpenMobile } = useSidebar();
   const { id } = useParams();
@@ -335,131 +387,96 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
               return (
                 <>
-                  {groupedChats.pinned.length > 0 && (
-                    <>
-                      <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                        Pinned
-                      </div>
-                      {groupedChats.pinned.map((chat) => (
-                        <ChatItem
-                          key={chat.id}
-                          chat={chat}
-                          isActive={chat.id === id}
-                          onDelete={(chatId) => {
-                            setDeleteId(chatId);
-                            setShowDeleteDialog(true);
-                          }}
-                          setOpenMobile={setOpenMobile}
-                          mutate={mutate}
-                        />
-                      ))}
-                    </>
-                  )}
-
-                  {groupedChats.today.length > 0 && (
-                    <>
-                      <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                        Today
-                      </div>
-                      {groupedChats.today.map((chat) => (
-                        <ChatItem
-                          key={chat.id}
-                          chat={chat}
-                          isActive={chat.id === id}
-                          onDelete={(chatId) => {
-                            setDeleteId(chatId);
-                            setShowDeleteDialog(true);
-                          }}
-                          setOpenMobile={setOpenMobile}
-                          mutate={mutate}
-                        />
-                      ))}
-                    </>
-                  )}
-
-                  {groupedChats.yesterday.length > 0 && (
-                    <>
-                      <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
-                        Yesterday
-                      </div>
-                      {groupedChats.yesterday.map((chat) => (
-                        <ChatItem
-                          key={chat.id}
-                          chat={chat}
-                          isActive={chat.id === id}
-                          onDelete={(chatId) => {
-                            setDeleteId(chatId);
-                            setShowDeleteDialog(true);
-                          }}
-                          setOpenMobile={setOpenMobile}
-                          mutate={mutate}
-                        />
-                      ))}
-                    </>
-                  )}
-
-                  {groupedChats.lastWeek.length > 0 && (
-                    <>
-                      <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
-                        Last 7 days
-                      </div>
-                      {groupedChats.lastWeek.map((chat) => (
-                        <ChatItem
-                          key={chat.id}
-                          chat={chat}
-                          isActive={chat.id === id}
-                          onDelete={(chatId) => {
-                            setDeleteId(chatId);
-                            setShowDeleteDialog(true);
-                          }}
-                          setOpenMobile={setOpenMobile}
-                          mutate={mutate}
-                        />
-                      ))}
-                    </>
-                  )}
-
-                  {groupedChats.lastMonth.length > 0 && (
-                    <>
-                      <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
-                        Last 30 days
-                      </div>
-                      {groupedChats.lastMonth.map((chat) => (
-                        <ChatItem
-                          key={chat.id}
-                          chat={chat}
-                          isActive={chat.id === id}
-                          onDelete={(chatId) => {
-                            setDeleteId(chatId);
-                            setShowDeleteDialog(true);
-                          }}
-                          setOpenMobile={setOpenMobile}
-                          mutate={mutate}
-                        />
-                      ))}
-                    </>
-                  )}
-
-                  {groupedChats.older.length > 0 && (
-                    <>
-                      <div className="px-2 py-1 text-xs text-sidebar-foreground/50 mt-6">
-                        Older
-                      </div>
-                      {groupedChats.older.map((chat) => (
-                        <ChatItem
-                          key={chat.id}
-                          chat={chat}
-                          isActive={chat.id === id}
-                          onDelete={(chatId) => {
-                            setDeleteId(chatId);
-                            setShowDeleteDialog(true);
-                          }}
-                          setOpenMobile={setOpenMobile}
-                          mutate={mutate}
-                        />
-                      ))}
-                    </>
-                  )}
+                  <AnimatePresence mode="popLayout">
+                    {groupedChats.pinned.length > 0 && (
+                      <ChatSection
+                        key="pinned"
+                        title="Pinned"
+                        chats={groupedChats.pinned}
+                        id={id}
+                        onDelete={(chatId) => {
+                          setDeleteId(chatId);
+                          setShowDeleteDialog(true);
+                        }}
+                        setOpenMobile={setOpenMobile}
+                        mutate={mutate}
+                      />
+                    )}
+                    {groupedChats.today.length > 0 && (
+                      <ChatSection
+                        key="today"
+                        title="Today"
+                        chats={groupedChats.today}
+                        id={id}
+                        onDelete={(chatId) => {
+                          setDeleteId(chatId);
+                          setShowDeleteDialog(true);
+                        }}
+                        setOpenMobile={setOpenMobile}
+                        mutate={mutate}
+                      />
+                    )}
+                    {groupedChats.yesterday.length > 0 && (
+                      <ChatSection
+                        key="yesterday"
+                        title="Yesterday"
+                        chats={groupedChats.yesterday}
+                        id={id}
+                        onDelete={(chatId) => {
+                          setDeleteId(chatId);
+                          setShowDeleteDialog(true);
+                        }}
+                        setOpenMobile={setOpenMobile}
+                        mutate={mutate}
+                        className="mt-6"
+                      />
+                    )}
+                    {groupedChats.lastWeek.length > 0 && (
+                      <ChatSection
+                        key="lastWeek"
+                        title="Last 7 days"
+                        chats={groupedChats.lastWeek}
+                        id={id}
+                        onDelete={(chatId) => {
+                          setDeleteId(chatId);
+                          setShowDeleteDialog(true);
+                        }}
+                        setOpenMobile={setOpenMobile}
+                        mutate={mutate}
+                        className="mt-6"
+                      />
+                    )}
+                    {groupedChats.lastMonth.length > 0 && (
+                      <ChatSection
+                        key="lastMonth"
+                        title="Last 30 days"
+                        chats={groupedChats.lastMonth}
+                        id={id}
+                        onDelete={(chatId) => {
+                          setDeleteId(chatId);
+                          setShowDeleteDialog(true);
+                        }}
+                        setOpenMobile={setOpenMobile}
+                        mutate={mutate}
+                        className="mt-6"
+                      />
+                    )}
+                    {groupedChats.older.length > 0 && (
+                      <ChatSection
+                        key="older"
+                        title="Older"
+                        chats={groupedChats.older}
+                        id={id}
+                        onDelete={(chatId) => {
+                          setDeleteId(chatId);
+                          setShowDeleteDialog(true);
+                        }}
+                        setOpenMobile={setOpenMobile}
+                        mutate={mutate}
+                        className="mt-6"
+                      />
+                    )}
+                  </AnimatePresence>
                 </>
               );
             })()}
