@@ -13,6 +13,7 @@ import {
   getChatById,
   saveChat,
   saveMessages,
+  toggleChatPin,
 } from '@/lib/db/queries';
 import {
   generateUUID,
@@ -25,6 +26,7 @@ import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
+import { NextResponse } from 'next/server';
 
 export const maxDuration = 60;
 
@@ -156,5 +158,21 @@ export async function DELETE(request: Request) {
     return new Response('An error occurred while processing your request', {
       status: 500,
     });
+  }
+}
+
+export async function PATCH(req: Request) {
+  const session = await auth()
+  if (!session?.user) {
+    return new NextResponse('Unauthorized', { status: 401 })
+  }
+
+  const { id, isPinned } = await req.json()
+
+  try {
+    await toggleChatPin(id, isPinned)
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update pin status' }, { status: 500 })
   }
 }

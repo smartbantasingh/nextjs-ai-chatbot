@@ -345,3 +345,15 @@ export async function updateChatVisiblityById({
     throw error;
   }
 }
+
+export async function toggleChatPin(chatId: string, isPinned: boolean) {
+  try {
+    return await db
+      .update(chat)
+      .set({ isPinned })
+      .where(eq(chat.id, chatId));
+  } catch (error) {
+    console.error('Failed to update chat pin status');
+    throw error;
+  }
+}
