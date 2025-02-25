@@ -58,7 +58,12 @@ export async function POST(request: Request) {
   }
 
   await saveMessages({
-    messages: [{ ...userMessage, createdAt: new Date(), chatId: id }],
+    messages: [{ 
+      ...userMessage, 
+      createdAt: new Date(), 
+      chatId: id,
+      isBookmarked: false 
+    }],
   });
 
   return createDataStreamResponse({
@@ -104,6 +109,7 @@ export async function POST(request: Request) {
                     role: message.role,
                     content: message.content,
                     createdAt: new Date(),
+                    isBookmarked: false
                   };
                 }),
               });

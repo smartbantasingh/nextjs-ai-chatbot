@@ -369,3 +369,16 @@ export async function toggleMessageBookmark(messageId: string, isBookmarked: boo
     throw error;
   }
 }
+
+export async function getBookmarkedMessages() {
+  try {
+    return await db
+      .select()
+      .from(message)
+      .where(eq(message.isBookmarked, true))
+      .orderBy(desc(message.createdAt));
+  } catch (error) {
+    console.error('Failed to fetch bookmarked messages');
+    throw error;
+  }
+}
